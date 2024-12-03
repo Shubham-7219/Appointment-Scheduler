@@ -1,0 +1,72 @@
+﻿@using System.Security.Claims
+@model IEnumerable<Appointment_Scheduler.Models.Appointment>
+
+@{
+    ViewData["Title"] = "Index";
+    var searchTerm = ViewData["SearchTerm"] as string;
+}
+
+@if(TempData["SuccessMessage"] != null){
+    <div id="success-message" class="alert alert-success">
+        @TempData["SuccessMessage"]
+    </div>
+}
+<div class="container mt-4">
+    <h1>Appointments</h1>
+
+    <!-- Search Form -->
+    <form method="get" action="@Url.Action("Index", "Home")">
+        <div class="form-group">
+            <input type="text" name="searchTerm" placeholder="Search by Title, Date..." class="form-control" value="@searchTerm" />
+        </div>
+        <button type="submit" class="btn btn-primary">Search</button>
+    </form>
+
+    <!-- Appointment List Table -->
+    <table class="table mt-4">
+        <thead>
+            <tr>
+                <th>Title</th>
+                <th>Start Time</th>
+                <th>End Time</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (Model != null && Model.Any())
+            {
+                foreach (var appointment in Model)
+                {
+                    <tr>
+                        <td>@appointment.Title</td>
+                        <td>@appointment.StartTime</td>
+                        <td>@appointment.EndTime</td>
+                        <td>
+                            @if (appointment.UserId == User.FindFirstValue(ClaimTypes.NameIdentifier))
+                            {
+                                <a href="@Url.Action("IndexEdit", new { id = appointment.Id })" class="btn btn-primary">Edit</a>
+                                <a href="@Url.Action("IndexDelete", new { id = appointment.Id })" class="btn btn-danger">Delete</a>
+                            }
+                        </td>
+                    </tr>
+                }
+            }
+            else
+            {
+                <tr>
+                    <td colspan="4">No appointments found.</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+<script>
+     document.addEventListener("DOMContentLoaded", function () {
+        const successMessage = document.getElementById("success-message");
+        if (successMessage) {
+            setTimeout(() => {
+                successMessage.style.display = "none";
+            }, 3000); // 3 seconds
+        }
+    });
+</script>
